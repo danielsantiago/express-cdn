@@ -1,10 +1,8 @@
-
-# express-cdn <sup>[![Version Badge](http://vb.teelaun.ch/niftylettuce/express-cdn.svg#0.1.0)](https://npmjs.org/package/express-cdn)</sup>
+# express-cdn [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/niftylettuce/express-cdn/trend.png)](https://bitdeli.com/free "Bitdeli Badge") [![NPM version](https://badge.fury.io/js/express-cdn.png)](http://badge.fury.io/js/express-cdn) [![Gittip](http://img.shields.io/gittip/niftylettuce.png)](https://www.gittip.com/niftylettuce/)
 
 Node.js module for delivering optimized, minified, mangled, gzipped, and CDN-hosted assets in Express (currently by Amazon S3 and Amazon CloudFront).
 
-View these docs generated with [readme-docs](https://github.com/getprove/node-bootstrap-readme-docs) here:
-<http://niftylettuce.github.io/express-cdn>
+View documentation here <http://documentup.com/niftylettuce/express-cdn>.
 
 Follow [@niftylettuce](http://twitter.com/niftylettuce) on Twitter for updates.
 
@@ -89,7 +87,7 @@ Assets are optimized, minified, mangled, gzipped, delivered by Amazon CloudFront
       - Origin: `S3-bucket-name`
       - Viewer Protocol Policy: `HTTP and HTTPS`
       - Object Caching: `Use Origin Cache Headers`
-      - Forward Query String: `No (Improves Caching)`
+      - Forward Query String: **Yes** `(Improves Caching)`
   * Distribution details:
       - Alternate Domain Names (CNAMEs): `cdn.your-domain.com`
       - Default Root Object: `index.html`
@@ -100,6 +98,22 @@ Assets are optimized, minified, mangled, gzipped, delivered by Amazon CloudFront
 6. Log in to your-domain.com's DNS manager, add a new CNAME "hostname" of `cdn`, and paste the contents of your clipboard as the the "alias" or "points to" value.
 7. After the DNS change propagates, you can test your new CDN by visiting <http://cdn.your-domain.com> (the `index.html` file should get displayed).
 
+**SSL Configuration**
+
+Some additional steps are required to enable SSL access of your assets by cloudfront.
+
+1. Visit <https://console.aws.amazon.com/s3/home> and open the bucket's properties.
+2. On the permissions tab, click the add bucket policy button.
+  * You can use the Policy Generator to generate the appropiate policy with this settings:
+      - Type: S3 Bucket Policy
+	  - Effect: Allow
+	  - Principal: AWS
+	  - AWS Service: Amazon S3
+	  - Actions: GetObject
+	  - ARN: arn:aws:s3:::<bucket_name>/* (fill in your bucket name)
+  * Click on generate policy and paste the output on the add bucket policy window.
+  * Save your changes.
+3. When you configure express-cdn you must reference cloudfront subdomain directly, since CNAMEs are not supported over ssl.
 
 ## Quick Start
 
@@ -187,6 +201,9 @@ app.listen(1337);
 
 // #8 - Load and concat two stylesheets
 != CDN([ '/css/style.css', '/css/extra.css' ])
+
+// #9 - Load a favicon
+!= CDN('/img/favicon.ico')
 ```
 
 #### EJS
@@ -215,6 +232,9 @@ app.listen(1337);
 
 <!-- #8 - Load and concat two stylesheets -->
 <%- CDN([ '/css/style.css', '/css/extra.css' ]) %>
+
+<!-- #9 - Load a favicon -->
+<%- CDN('/img/favicon.ico') %>
 ```
 
 ### Automatically Rendered HTML
@@ -248,6 +268,9 @@ app.listen(1337);
 <!-- #8 - Load and concat two stylesheets -->
 <link href="/css/style.css?v=1341214029" rel="stylesheet" type="text/css" />
 <link href="/css/extra.css?v=1341214029" rel="stylesheet" type="text/css" />
+
+<!-- #9 - Load a favicon -->
+<link href="/img/favicon.ico?v=1341214029" rel="shortcut icon" />
 ```
 
 #### Production Mode
@@ -283,6 +306,9 @@ timestamps together and checks if the combined asset timestamp on S3 exists!).
 
 <!-- #8 - Load and concat two stylesheets -->
 <link href="https://cdn.your-site.com/style%2Bextra.1341382571.css" rel="stylesheet" type="text/css" />
+
+<!-- #9 - Load a favicon -->
+<link href="https://cdn.your-site.com/img/favicon.1341382571.ico" rel="shortcut icon" />
 ```
 
 
@@ -348,6 +374,26 @@ These are feature requests that we would appreciate contributors for:
 
 ## Changelog
 
+* 0.2.0 - Support for CSS @media query attribute with parenthesis (by @jfred)
+
+* 0.1.9 - Added cleanCSS support to minify CSS (by @DServy)
+
+* 0.1.8 - Added favicon support (by @mateusz-)
+
+* 0.1.7 - Fixed issue with knox (by @DServy)
+
+* 0.1.6 - Fixed extracting CSS border-image resources and image snot followed by `;` in CSS (by @lxe)
+
+* 0.1.5 - Preserved license comments with UglifyJS version 2.0 (by @mateusz-)
+
+* 0.1.4 - Added case insensitive usage of `cdn` or `CDN` (by @leostera)
+
+* 0.1.3 - Explicity set `x-amz-acl` to `public-read`.
+
+* 0.1.2 - Added protocol relative paths for HTTP/HTTPS via `//` (by @Nevtep)
+
+* 0.1.1 - Add ability to specify template extension
+
 * 0.1.0 - Fixed endpoint issue, fixed knox issue, added optipng binary, added jpegtran binary, **no longer requires optipng or jpegtran server dependencies!**
 
 * 0.0.9 - Allowed explicit setting of S3 endpoint (by @eladb)
@@ -380,13 +426,16 @@ These are feature requests that we would appreciate contributors for:
 ## Contributors
 
 * Nick Baugh <niftylettuce@gmail.com>
+* Daniel Santiago
 * James Wyse <james@jameswyse.net>
 * Jon Keating <jon@licq.org>
 * Andrew de Andrade <andrew@deandrade.com.br>
 * [Joshua Gross](http://www.joshisgross.com) <josh@spandex.io>
 * Dominik Lessel <info@rocketeleven.com>
 * Elad Ben-Israel <elad.benisrael@gmail.com>
-
+* Aleksey Smolenchuk <lxe@lxe.co>
+* David Staley <Dstaley234@gmail.com>
+* Joshua Frederick <josh@jfred.net>
 
 ## License
 
